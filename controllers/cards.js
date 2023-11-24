@@ -10,7 +10,7 @@ function createCard(req, res) {
 
   return cardModel
     .create({ name: cardData.name, link: cardData.link, owner: req.user._id })
-    .then((card) => res.status(201).send(card))
+    .then((card) => res.status(200).send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return res
@@ -34,13 +34,13 @@ function deleteCard(req, res) {
           .status(cardNotFoundError.status)
           .send({ message: cardNotFoundError.message });
       }
-      return res.status(201).send(card);
+      return res.status(200).send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
         return res
-          .status(cardNotFoundError.status)
-          .send({ message: cardNotFoundError.message });
+          .status(dataError.status)
+          .send({ message: dataError.message });
       }
       return res.status(serverError.status).send({ message: serverError.message });
     });
@@ -61,7 +61,7 @@ function likeCard(req, res) {
           .status(cardNotFoundError.status)
           .send({ message: cardNotFoundError.message });
       }
-      return res.status(201).send(card);
+      return res.status(200).send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -90,7 +90,7 @@ function dislikeCard(req, res) {
           .status(cardNotFoundError.status)
           .send({ message: cardNotFoundError.message });
       }
-      return res.status(201).send(card);
+      return res.status(200).send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -107,7 +107,7 @@ function dislikeCard(req, res) {
 function readAllCards(req, res) {
   return cardModel
     .find()
-    .then((cards) => res.status(201).send(cards))
+    .then((cards) => res.status(200).send(cards))
     .catch(() => res
       .status(serverError.status)
       .send({ message: serverError.message }));

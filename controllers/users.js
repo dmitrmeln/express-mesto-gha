@@ -10,7 +10,7 @@ function createUser(req, res) {
   const userData = req.body;
   return userModel
     .create(userData)
-    .then((user) => res.status(201).send(user))
+    .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return res
@@ -34,13 +34,13 @@ function readUser(req, res) {
           .status(userNotFoundError.status)
           .send({ message: userNotFoundError.message });
       }
-      return res.status(201).send(user);
+      return res.status(200).send(user);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
         return res
-          .status(userNotFoundError.status)
-          .send({ message: userNotFoundError.message });
+          .status(dataError.status)
+          .send({ message: dataError.message });
       }
       return res.status(serverError.status).send({ message: serverError.message });
     });
@@ -49,7 +49,7 @@ function readUser(req, res) {
 function readAllUsers(req, res) {
   return userModel
     .find()
-    .then((users) => res.status(201).send(users))
+    .then((users) => res.status(200).send(users))
     .catch(() => res
       .status(serverError.status).send({ message: serverError.message }));
 }
@@ -70,7 +70,7 @@ function updateUserInfo(req, res) {
           .status(userNotFoundError.status)
           .send({ message: userNotFoundError.message });
       }
-      return res.status(201).send(user);
+      return res.status(200).send(user);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -100,7 +100,7 @@ function updateUserAvatar(req, res) {
           .status(userNotFoundError.status)
           .send({ message: userNotFoundError.message });
       }
-      return res.status(201).send(user);
+      return res.status(200).send(user);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {

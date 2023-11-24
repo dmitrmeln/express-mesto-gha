@@ -3,6 +3,11 @@ const dataError = {
   message: 'Переданы некорректные данные.',
 };
 
+const routerError = {
+  status: 404,
+  message: 'Страница не найдена',
+};
+
 const userNotFoundError = {
   status: 404,
   message: 'Пользователь с указанным _id не найден.',
@@ -23,4 +28,5 @@ module.exports = {
   userNotFoundError,
   cardNotFoundError,
   serverError,
+  routerError,
 };
