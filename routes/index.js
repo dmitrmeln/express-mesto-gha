@@ -7,7 +7,6 @@ const cardsRouter = require('./cards');
 router.use('/users', usersRouter);
 router.use('/cards', cardsRouter);
 
-router.use('/', (req, res) => res.status(200).send('Backend for MESTO'));
 router.use('*', (req, res) => res
   .status(routerError.status)
   .send({ message: routerError.message }));
