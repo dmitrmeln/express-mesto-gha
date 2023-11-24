@@ -10,6 +10,6 @@ router.use('/cards', cardsRouter);
 router.get('/', (req, res) => res.status(200).send('Backend for MESTO'));
 router.get('*', (req, res) => res
   .status(routerError.status)
-  .send({ message: routerError.message }));
+  .send(routerError.message));
 
 module.exports = router;
