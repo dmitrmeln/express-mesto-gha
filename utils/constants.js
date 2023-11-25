@@ -23,10 +23,15 @@ const serverError = {
   message: 'Ошибка сервера.',
 };
 
+const gotSuccess = {
+  status: 200,
+};
+
 module.exports = {
   dataError,
   userNotFoundError,
   cardNotFoundError,
   serverError,
   routerError,
+  gotSuccess,
 };

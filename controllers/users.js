@@ -1,16 +1,18 @@
+const mongoose = require('mongoose');
 const userModel = require('../models/user');
 
 const {
   dataError,
   userNotFoundError,
   serverError,
+  gotSuccess,
 } = require('../utils/constants');
 
 function createUser(req, res) {
   const userData = req.body;
   return userModel
     .create(userData)
-    .then((user) => res.status(200).send(user))
+    .then((user) => res.status(gotSuccess.status).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return res
@@ -28,19 +30,20 @@ function readUser(req, res) {
 
   return userModel
     .findById(userId)
-    .then((user) => {
-      if (!user) {
-        return res
-          .status(userNotFoundError.status)
-          .send({ message: userNotFoundError.message });
-      }
-      return res.status(200).send(user);
-    })
+    .orFail(new Error(userNotFoundError.message))
+    .then((user) => res
+      .status(gotSuccess.status)
+      .send(user))
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err instanceof mongoose.Error.CastError) {
         return res
           .status(dataError.status)
           .send({ message: dataError.message });
+      }
+      if (err.message === userNotFoundError.message) {
+        return res
+          .status(userNotFoundError.status)
+          .send({ message: userNotFoundError.message });
       }
       return res.status(serverError.status).send({ message: serverError.message });
     });
@@ -49,7 +52,7 @@ function readUser(req, res) {
 function readAllUsers(req, res) {
   return userModel
     .find()
-    .then((users) => res.status(200).send(users))
+    .then((users) => res.status(gotSuccess.status).send(users))
     .catch(() => res
       .status(serverError.status).send({ message: serverError.message }));
 }
@@ -64,19 +67,20 @@ function updateUserInfo(req, res) {
         runValidators: true,
       },
     )
-    .then((user) => {
-      if (!user) {
-        return res
-          .status(userNotFoundError.status)
-          .send({ message: userNotFoundError.message });
-      }
-      return res.status(200).send(user);
-    })
+    .orFail(new Error(userNotFoundError.message))
+    .then((user) => res
+      .status(gotSuccess.status)
+      .send(user))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err instanceof mongoose.Error.ValidationError) {
         return res
           .status(dataError.status)
           .send({ message: dataError.message });
+      }
+      if (err.message === userNotFoundError.message) {
+        return res
+          .status(userNotFoundError.status)
+          .send({ message: userNotFoundError.message });
       }
       return res
         .status(serverError.status)
@@ -94,19 +98,20 @@ function updateUserAvatar(req, res) {
         runValidators: true,
       },
     )
-    .then((user) => {
-      if (!user) {
-        return res
-          .status(userNotFoundError.status)
-          .send({ message: userNotFoundError.message });
-      }
-      return res.status(200).send(user);
-    })
+    .orFail(new Error(userNotFoundError.message))
+    .then((user) => res
+      .status(gotSuccess.status)
+      .send(user))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err instanceof mongoose.Error.ValidationError) {
         return res
           .status(dataError.status)
           .send({ message: dataError.message });
+      }
+      if (err.message === userNotFoundError.message) {
+        return res
+          .status(userNotFoundError.status)
+          .send({ message: userNotFoundError.message });
       }
       return res
         .status(serverError.status)
