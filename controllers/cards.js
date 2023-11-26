@@ -8,106 +8,31 @@ const {
   gotSuccess,
 } = require('../utils/constants');
 
-function createCard(req, res) {
-  const cardData = req.body;
-
-  return cardModel
-    .create({ name: cardData.name, link: cardData.link, owner: req.user._id })
-    .then((card) => res.status(gotSuccess.status).send(card))
-    .catch((err) => {
-      if (err instanceof mongoose.Error.ValidationError) {
-        return res
-          .status(dataError.status)
-          .send({ message: dataError.message });
-      }
-      return res
-        .status(serverError.status)
-        .send({ message: serverError.message });
-    });
+function handleErrors(err, res, specificError) {
+  if (err instanceof mongoose.Error.CastError || err instanceof mongoose.Error.ValidationError) {
+    return res.status(dataError.status).send({ message: dataError.message });
+  }
+  if (err.message === specificError.message) {
+    return res.status(specificError.status).send({ message: specificError.message });
+  }
+  return res.status(serverError.status).send({ message: serverError.message });
 }
 
-function deleteCard(req, res) {
+function handleLike(req, res, options) {
   const { cardId } = req.params;
-
   return cardModel
-    .findByIdAndDelete(cardId)
+    .findByIdAndUpdate(cardId, options, { new: true })
     .orFail(new Error(cardNotFoundError.message))
-    .then((card) => res
-      .status(gotSuccess.status)
-      .send(card))
-    .catch((err) => {
-      if (err instanceof mongoose.Error.CastError) {
-        return res
-          .status(dataError.status)
-          .send({ message: dataError.message });
-      }
-      if (err.message === cardNotFoundError.message) {
-        return res
-          .status(cardNotFoundError.status)
-          .send({ message: cardNotFoundError.message });
-      }
-      return res.status(serverError.status).send({ message: serverError.message });
-    });
+    .then((card) => res.status(gotSuccess.status).send(card))
+    .catch((err) => handleErrors(err, res, cardNotFoundError));
 }
 
 function likeCard(req, res) {
-  const { cardId } = req.params;
-
-  return cardModel
-    .findByIdAndUpdate(
-      cardId,
-      { $addToSet: { likes: req.user._id } },
-      { new: true },
-    )
-    .orFail(new Error(cardNotFoundError.message))
-    .then((card) => res
-      .status(gotSuccess.status)
-      .send(card))
-    .catch((err) => {
-      if (err instanceof mongoose.Error.CastError) {
-        return res
-          .status(dataError.status)
-          .send({ message: dataError.message });
-      }
-      if (err.message === cardNotFoundError.message) {
-        return res
-          .status(cardNotFoundError.status)
-          .send({ message: cardNotFoundError.message });
-      }
-      return res
-        .status(serverError.status)
-        .send({ message: serverError.message });
-    });
+  return handleLike(req, res, { $addToSet: { likes: req.user._id } });
 }
 
 function dislikeCard(req, res) {
-  const { cardId } = req.params;
-
-  return cardModel
-    .findByIdAndUpdate(
-      cardId,
-      { $pull: { likes: req.user._id } },
-      { new: true },
-    )
-    .orFail(new Error(cardNotFoundError.message))
-    .then((card) => res
-      .status(gotSuccess.status)
-      .send(card))
-    .catch((err) => {
-      if (err instanceof mongoose.Error.CastError) {
-        return res
-          .status(dataError.status)
-          .send({ message: dataError.message });
-      }
-      if (err.message === cardNotFoundError.message) {
-        return res
-          .status(cardNotFoundError.status)
-          .send({ message: cardNotFoundError.message });
-      }
-      return res
-        .status(serverError.status)
-        .send({ message: serverError.message });
-    });
+  return handleLike(req, res, { $pull: { likes: req.user._id } });
 }
 
 function readAllCards(req, res) {
@@ -117,6 +42,25 @@ function readAllCards(req, res) {
     .catch(() => res
       .status(serverError.status)
       .send({ message: serverError.message }));
+}
+
+function createCard(req, res) {
+  const { name, link } = req.body;
+
+  return cardModel
+    .create({ name, link, owner: req.user._id })
+    .then((card) => res.status(gotSuccess.status).send(card))
+    .catch((err) => handleErrors(err, res, dataError));
+}
+
+function deleteCard(req, res) {
+  const { cardId } = req.params;
+
+  return cardModel
+    .findByIdAndDelete(cardId)
+    .orFail(new Error(cardNotFoundError.message))
+    .then((card) => res.status(gotSuccess.status).send(card))
+    .catch((err) => handleErrors(err, res, cardNotFoundError));
 }
 
 module.exports = {
