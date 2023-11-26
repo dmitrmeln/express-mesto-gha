@@ -9,7 +9,7 @@ const {
 } = require('../utils/constants');
 
 function handleErrors(err, res, specificError) {
-  if (err instanceof mongoose.Error.ValidationError) {
+  if (err instanceof mongoose.Error.CastError || err instanceof mongoose.Error.ValidationError) {
     return res.status(dataError.status).send({ message: dataError.message });
   }
   if (err.message === specificError.message) {
@@ -61,9 +61,7 @@ function readUser(req, res) {
   return userModel
     .findById(userId)
     .orFail(new Error(userNotFoundError.message))
-    .then((user) => res
-      .status(gotSuccess.status)
-      .send(user))
+    .then((user) => res.status(gotSuccess.status).send(user))
     .catch((err) => handleErrors(err, res, userNotFoundError));
 }
 
