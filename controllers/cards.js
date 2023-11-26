@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
 const cardModel = require('../models/card');
+const handleErrors = require('../utils/errorsHandler');
 
 const {
   dataError,
@@ -7,16 +7,6 @@ const {
   serverError,
   gotSuccess,
 } = require('../utils/constants');
-
-function handleErrors(err, res, specificError) {
-  if (err instanceof mongoose.Error.CastError || err instanceof mongoose.Error.ValidationError) {
-    return res.status(dataError.status).send({ message: dataError.message });
-  }
-  if (err.message === specificError.message) {
-    return res.status(specificError.status).send({ message: specificError.message });
-  }
-  return res.status(serverError.status).send({ message: serverError.message });
-}
 
 function handleLike(req, res, options) {
   const { cardId } = req.params;
