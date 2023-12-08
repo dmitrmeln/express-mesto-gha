@@ -16,7 +16,7 @@ router.post('/signup', celebrate({
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
     avatar: Joi.string(),
-    email: Joi.string().required(),
+    email: Joi.string().required().email(),
     password: Joi.string().required(),
   }),
 }), createUser);
@@ -25,7 +25,7 @@ router.post('/signin', celebrate({
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
     avatar: Joi.string(),
-    email: Joi.string().required(),
+    email: Joi.string().required().email(),
     password: Joi.string().required(),
   }),
 }), login);

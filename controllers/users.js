@@ -79,7 +79,7 @@ function login(req, res, next) {
 
   return userModel
     .findOne({ email }).select('+password')
-    .orFail(new AuthError('Неправильный email или пароль.'))
+    .orFail(new UnauthorizedError('Неправильный email или пароль.'))
     .then((user) => {
       const token = generateWebToken(user._id);
 
@@ -123,7 +123,7 @@ function createUser(req, res, next) {
     return userModel.create({
       email, password: hash, name, about, avatar,
     })
-      .then((user) => res.status(201).send({ email: user.email, _id: user._id }))
+      .then((user) => res.status(201).send(user))
       .catch((error) => {
         if (error.name === 'MongoServerError' && error.code === 11000) {
           return next(new RegistrationError('Пользователь с данным email уже существует.'));
