@@ -103,7 +103,9 @@ function login(req, res, next) {
 }
 
 function createUser(req, res, next) {
-  const { email, password } = req.body;
+  const {
+    email, password, name, about, avatar,
+  } = req.body;
 
   if (!email || !password) {
     return next(new BadRequestError('Требуется заполнить email и пароль.'));
@@ -118,7 +120,9 @@ function createUser(req, res, next) {
       next(new ServerError('Ошибка сервера.'));
     }
 
-    return userModel.create({ email, password: hash })
+    return userModel.create({
+      email, password: hash, name, about, avatar,
+    })
       .then((user) => res.status(201).send({ email: user.email, _id: user._id }))
       .catch((error) => {
         if (error.name === 'MongoServerError' && error.code === 11000) {
