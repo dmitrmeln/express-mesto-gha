@@ -1,66 +1,132 @@
+const validator = require('validator');
+const bcrypt = require('bcrypt');
 const userModel = require('../models/user');
-const handleErrors = require('../utils/errorsHandler');
+
+const { generateWebToken } = require('../utils/jwt');
+const SearchError = require('../errors/search-error');
+const BadRequestError = require('../errors/bad-request-error');
+const RegistrationError = require('../errors/registration-error');
+const ServerError = require('../errors/server-error');
+const AuthError = require('../errors/auth-error');
+const UnauthorizedError = require('../errors/unauthorized-error');
+
+const { SALT_ROUNDS } = require('../utils/config');
 
 const {
-  dataError,
-  userNotFoundError,
-  serverError,
   gotSuccess,
 } = require('../utils/constants');
 
-function handleUserUpdate(req, res, options) {
+function handleUserUpdate(req, res, next, options) {
   return userModel
     .findByIdAndUpdate(
-      req.user._id,
+      req.user.id,
       options,
       {
         new: true,
         runValidators: true,
       },
     )
-    .orFail(new Error(userNotFoundError.message))
-    .then((user) => res
-      .status(gotSuccess.status)
-      .send(user))
-    .catch((err) => handleErrors(err, res, userNotFoundError));
+    .orFail(new SearchError('Пользователь с указанным _id не найден.'))
+    .then((user) => res.status(gotSuccess.status).send(user))
+    .catch(next);
 }
 
-function updateUserInfo(req, res) {
+function updateUserInfo(req, res, next) {
   const updateData = { name: req.body.name, about: req.body.about };
 
-  return handleUserUpdate(req, res, updateData);
+  return handleUserUpdate(req, res, next, updateData);
 }
 
-function updateUserAvatar(req, res) {
+function updateUserAvatar(req, res, next) {
   const updateData = { avatar: req.body.avatar };
 
-  return handleUserUpdate(req, res, updateData);
+  return handleUserUpdate(req, res, next, updateData);
 }
 
-function createUser(req, res) {
-  const userData = req.body;
-  return userModel
-    .create(userData)
-    .then((user) => res.status(gotSuccess.status).send(user))
-    .catch((err) => handleErrors(err, res, dataError));
-}
-
-function readUser(req, res) {
+function readUser(req, res, next) {
   const { userId } = req.params;
 
   return userModel
     .findById(userId)
-    .orFail(new Error(userNotFoundError.message))
+    .orFail(new SearchError('Пользователь с указанным _id не найден.'))
     .then((user) => res.status(gotSuccess.status).send(user))
-    .catch((err) => handleErrors(err, res, userNotFoundError));
+    .catch(next);
 }
 
-function readAllUsers(req, res) {
+function readCurrentUser(req, res, next) {
+  const { id } = req.user;
+
+  return userModel
+    .findOne({ _id: id })
+    .orFail(new SearchError('Пользователь с указанным _id не найден.'))
+    .then((user) => res.status(gotSuccess.status).send(user))
+    .catch(next);
+}
+
+function readAllUsers(req, res, next) {
   return userModel
     .find()
     .then((users) => res.status(gotSuccess.status).send(users))
-    .catch(() => res
-      .status(serverError.status).send({ message: serverError.message }));
+    .catch(next);
+}
+
+function login(req, res, next) {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return next(new BadRequestError('Требуется заполнить email и пароль.'));
+  }
+
+  return userModel
+    .findOne({ email }).select('+password')
+    .orFail(new AuthError('Неправильный email или пароль.'))
+    .then((user) => {
+      const token = generateWebToken(user._id);
+
+      bcrypt.compare(password, user.password, (err, isMatch) => {
+        if (err) {
+          throw err;
+        }
+        if (!isMatch) {
+          return next(new UnauthorizedError('Неправильный email или пароль.'));
+        }
+        return res
+          .status(gotSuccess.status)
+          .cookie('jwt', token, {
+            maxAge: 3600000 * 24 * 7,
+            httpOnly: true,
+          })
+          .send({ jwt: token });
+      });
+    })
+    .catch(next);
+}
+
+function createUser(req, res, next) {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return next(new BadRequestError('Требуется заполнить email и пароль.'));
+  }
+
+  if (!validator.isEmail(email)) {
+    return next(new BadRequestError('Некорректный email.'));
+  }
+
+  return bcrypt.hash(password, SALT_ROUNDS, (err, hash) => {
+    if (err) {
+      next(new ServerError('Ошибка сервера.'));
+    }
+
+    return userModel.create({ email, password: hash })
+      .then((user) => res.status(201).send({ email: user.email, _id: user._id }))
+      .catch((error) => {
+        if (error.name === 'MongoServerError' && error.code === 11000) {
+          return next(new RegistrationError('Пользователь с данным email уже существует.'));
+        }
+        return next(error);
+      });
+  });
 }
 
 module.exports = {
@@ -69,4 +135,6 @@ module.exports = {
   readUser,
   readAllUsers,
   updateUserAvatar,
+  login,
+  readCurrentUser,
 };
