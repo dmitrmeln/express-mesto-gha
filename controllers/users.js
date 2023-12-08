@@ -93,7 +93,6 @@ function login(req, res, next) {
           .status(gotSuccess.status)
           .cookie('jwt', token, {
             maxAge: 3600000 * 24 * 7,
-            httpOnly: true,
           })
           .send({ jwt: token });
       });
