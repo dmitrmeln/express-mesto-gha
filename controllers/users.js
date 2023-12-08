@@ -7,7 +7,6 @@ const SearchError = require('../errors/search-error');
 const BadRequestError = require('../errors/bad-request-error');
 const RegistrationError = require('../errors/registration-error');
 const ServerError = require('../errors/server-error');
-const AuthError = require('../errors/auth-error');
 const UnauthorizedError = require('../errors/unauthorized-error');
 
 const { SALT_ROUNDS } = require('../utils/config');
@@ -123,7 +122,12 @@ function createUser(req, res, next) {
     return userModel.create({
       email, password: hash, name, about, avatar,
     })
-      .then((user) => res.status(201).send(user))
+      .then((user) => res.status(201).send({
+        email: user.email,
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+      }))
       .catch((error) => {
         if (error.name === 'MongoServerError' && error.code === 11000) {
           return next(new RegistrationError('Пользователь с данным email уже существует.'));

@@ -2,7 +2,7 @@ const { verifyWebToken } = require('../utils/jwt');
 const UnauthorizedError = require('../errors/unauthorized-error');
 
 async function auth(req, res, next) {
-  const token = req.headers.authorization;
+  const token = req.headers.cookie.replace('jwt=', '');
 
   let payload;
 
