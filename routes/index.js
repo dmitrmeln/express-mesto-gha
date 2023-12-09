@@ -30,9 +30,8 @@ router.post('/signin', celebrate({
   }),
 }), login);
 
-router.use(authMiddleware);
-router.use('/users', usersRouter);
-router.use('/cards', cardsRouter);
+router.use('/users', authMiddleware, usersRouter);
+router.use('/cards', authMiddleware, cardsRouter);
 
 router.use('*', (req, res, next) => next(new SearchError('Страница не найдена')));
 

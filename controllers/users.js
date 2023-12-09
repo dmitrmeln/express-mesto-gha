@@ -54,6 +54,7 @@ function readUser(req, res, next) {
 
 function readCurrentUser(req, res, next) {
   const { id } = req.user;
+
   return userModel
     .findOne({ _id: id })
     .orFail(new SearchError('Пользователь с указанным _id не найден.'))
@@ -91,7 +92,6 @@ function login(req, res, next) {
 
         return res
           .status(gotSuccess.status)
-          .header('Authorization', token)
           .cookie('jwt', token, {
             maxAge: 3600000 * 24 * 7,
             httpOnly: true,
