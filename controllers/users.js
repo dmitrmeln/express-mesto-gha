@@ -89,14 +89,15 @@ function login(req, res, next) {
         if (!isMatch) {
           return next(new UnauthorizedError('Неправильный email или пароль.'));
         }
+
         return res
           .status(gotSuccess.status)
           // .cookie('jwt', token, {
           //   maxAge: 3600000 * 24 * 7,
           //   httpOnly: true,
           // })
-          .header('Authorization', token)
-          .send({ jwt: token });
+          // .set('Authorization', token)
+          .send({ token });
       });
     })
     .catch(next);
