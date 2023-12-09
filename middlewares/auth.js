@@ -7,8 +7,8 @@ async function auth(req, res, next) {
   // const token = cookie.replace('jwt=', '');
   // const token = req.headers.authorization.replace('Bearer ', '');
   const token = req.headers.authorization;
+  // console.log(req.user.token)
   // req.headers.authorization = token;
-  console.log(token);
   // console.log(req.headers)
   let payload;
 
