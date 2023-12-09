@@ -2,11 +2,11 @@ const { verifyWebToken } = require('../utils/jwt');
 const UnauthorizedError = require('../errors/unauthorized-error');
 
 async function auth(req, res, next) {
-  const { cookie } = req.headers;
-  const token = cookie.replace('jwt=', '');
+  // const { cookie } = req.headers;
+  // const token = cookie.replace('jwt=', '');
   // const token = req.headers.authorization.replace('Bearer ', '');
-  // const token = req.headers.authorization;
-
+  const token = req.headers.authorization;
+  // console.log(req.headers)
   let payload;
 
   try {
