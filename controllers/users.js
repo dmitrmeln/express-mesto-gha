@@ -82,8 +82,6 @@ function login(req, res, next) {
     .then((user) => {
       const token = generateWebToken(user._id);
 
-      // req.user.token = token;
-
       bcrypt.compare(password, user.password, (err, isMatch) => {
         if (err) {
           throw err;
@@ -95,10 +93,10 @@ function login(req, res, next) {
         return res
           .status(gotSuccess.status)
           .header('Authorization', token)
-          // .cookie('jwt', token, {
-          //   maxAge: 3600000 * 24 * 7,
-          //   httpOnly: true,
-          // })
+          .cookie('jwt', token, {
+            maxAge: 3600000 * 24 * 7,
+            httpOnly: true,
+          })
           .send({ token });
       });
     })
