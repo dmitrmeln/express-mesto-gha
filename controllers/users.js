@@ -54,7 +54,6 @@ function readUser(req, res, next) {
 
 function readCurrentUser(req, res, next) {
   const { id } = req.user;
-
   return userModel
     .findOne({ _id: id })
     .orFail(new SearchError('Пользователь с указанным _id не найден.'))
