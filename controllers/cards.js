@@ -7,22 +7,22 @@ const {
   successCreated,
 } = require('../utils/constants');
 
-function handleLike(req, res, next, options) {
+function handleLike(req, res, next, successCode, options) {
   const { cardId } = req.params;
 
   return cardModel
     .findByIdAndUpdate(cardId, options, { new: true })
     .orFail(new SearchError('Карточка с указанным _id не найдена.'))
-    .then((card) => res.status(successCreated.status).send(card))
+    .then((card) => res.status(successCode.status).send(card))
     .catch(next);
 }
 
 function likeCard(req, res, next) {
-  return handleLike(req, res, next, { $addToSet: { likes: req.user.id } });
+  return handleLike(req, res, next, successCreated, { $addToSet: { likes: req.user.id } });
 }
 
 function dislikeCard(req, res, next) {
-  return handleLike(req, res, next, { $pull: { likes: req.user.id } });
+  return handleLike(req, res, next, gotSuccess, { $pull: { likes: req.user.id } });
 }
 
 function readAllCards(req, res, next) {
