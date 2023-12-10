@@ -1,8 +1,15 @@
 const jwt = require('jsonwebtoken');
-// const userModel = require('../models/user');
+
 const { JWT_SECRET } = require('./config');
 
 const generateWebToken = (id) => jwt.sign({ id }, JWT_SECRET, { expiresIn: '7d' });
+
+const verifyWebToken = (token) => jwt.verify(token, JWT_SECRET);
+
+module.exports = {
+  generateWebToken,
+  verifyWebToken,
+};
 
 // const verifyWebToken = (token) => jwt.verify(token, JWT_SECRET, (err, decoded) => {
 //   if (err) {
@@ -14,10 +21,3 @@ const generateWebToken = (id) => jwt.sign({ id }, JWT_SECRET, { expiresIn: '7d' 
 //     .then(() => decoded)
 //     .catch(() => false);
 // });
-
-const verifyWebToken = (token) => jwt.verify(token, JWT_SECRET);
-
-module.exports = {
-  generateWebToken,
-  verifyWebToken,
-};

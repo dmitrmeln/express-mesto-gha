@@ -92,10 +92,10 @@ function login(req, res, next) {
 
         return res
           .status(gotSuccess.status)
-          // .cookie('jwt', token, {
-          //   maxAge: 3600000 * 24 * 7,
-          //   httpOnly: true,
-          // })
+          .cookie('jwt', token, {
+            maxAge: 3600000 * 24 * 7,
+            httpOnly: true,
+          })
           .send({ token });
       });
     })
