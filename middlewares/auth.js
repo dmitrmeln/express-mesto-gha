@@ -15,9 +15,7 @@ function auth(req, res, next) {
   try {
     payload = verifyWebToken(token);
   } catch (err) {
-    return res
-      .status(401)
-      .send({ message: 'Необходима авторизация' });
+    return next(new UnauthorizedError('Необходима авторизация.'));
   }
 
   req.user = payload;
