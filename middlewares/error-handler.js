@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const ServerError = require('../errors/server-error');
 
-const errorsHandler = (err, req, res) => {
+const errorsHandler = (err, req, res, next) => {
   console.log(err);
   if (err.statusCode) {
     return res.status(err.statusCode).send({ message: err.message });
