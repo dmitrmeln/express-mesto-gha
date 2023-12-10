@@ -34,7 +34,9 @@ function auth(req, res, next) {
   if (!authorization) {
     return next(new UnauthorizedError('Запрещено.'));
   }
+
   const token = authorization;
+
   let payload;
 
   try {
