@@ -10,7 +10,7 @@ const errorsHandler = (err, req, res, next) => {
     return res.status(400).send({ message: 'Переданы некорректные данные.' });
   }
 
-  return res.status(ServerError.statusCode).send({ message: 'Ошибка сервера' });
+  return next(new ServerError('Ошибка сервера.'));
 };
 
 module.exports = errorsHandler;
