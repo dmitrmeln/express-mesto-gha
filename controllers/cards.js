@@ -4,6 +4,7 @@ const ForbiddenError = require('../errors/forbidden-error');
 
 const {
   gotSuccess,
+  successCreated,
 } = require('../utils/constants');
 
 function handleLike(req, res, next, options) {
@@ -12,7 +13,7 @@ function handleLike(req, res, next, options) {
   return cardModel
     .findByIdAndUpdate(cardId, options, { new: true })
     .orFail(new SearchError('Карточка с указанным _id не найдена.'))
-    .then((card) => res.status(gotSuccess.status).send(card))
+    .then((card) => res.status(successCreated.status).send(card))
     .catch(next);
 }
 
@@ -51,7 +52,7 @@ function deleteCard(req, res, next) {
       if (card.owner.toString() !== userId) {
         throw new ForbiddenError('У вас нет прав для удаления данной карточки.');
       }
-      return cardModel.findByIdAndDelete(cardId);
+      return cardModel.deleteOne(card);
     })
     .then(() => res.status(gotSuccess.status).send({ message: 'Карточка успешно удалена.' }))
     .catch(next);

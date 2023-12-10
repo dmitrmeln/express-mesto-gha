@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const urlRegex = require('../utils/constants');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -17,10 +18,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
     validate: {
-      validator: (value) => {
-        const urlRegex = /^(https?:\/\/)?([a-zA-Z0-9.-]+(\.[a-zA-Z]{2,})+)(\/[a-zA-Z0-9-._~:/?#[\]@!$&'()*+,;=]*)?$/;
-        return urlRegex.test(value);
-      },
+      validator: (value) => urlRegex.test(value),
       message: 'Некорректная ссылка.',
     },
   },

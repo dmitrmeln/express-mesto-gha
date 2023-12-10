@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const ServerError = require('../errors/server-error');
 
-const errorsHandler = (err, req, res, next) => {
+const errorsHandler = (err, req, res) => {
   console.log(err);
   if (err.statusCode) {
     return res.status(err.statusCode).send({ message: err.message });
@@ -10,7 +10,7 @@ const errorsHandler = (err, req, res, next) => {
     return res.status(400).send({ message: 'Переданы некорректные данные.' });
   }
 
-  return next(new ServerError('Ошибка сервера.'));
+  return res.status(ServerError.statusCode).send({ message: 'Ошибка сервера' });
 };
 
 module.exports = errorsHandler;
