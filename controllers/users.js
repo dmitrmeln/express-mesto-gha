@@ -82,7 +82,7 @@ function login(req, res, next) {
     .then((user) => {
       const token = generateWebToken(user._id);
 
-      bcrypt.compare(password, user.password, (err, isMatch) => {
+      return bcrypt.compare(password, user.password, (err, isMatch) => {
         if (err) {
           throw err;
         }
