@@ -37,7 +37,7 @@ function createCard(req, res, next) {
 
   return cardModel
     .create({ name, link, owner: req.user.id })
-    .then((card) => res.status(gotSuccess.status).send(card))
+    .then((card) => res.status(successCreated.status).send(card))
     .catch(next);
 }
 

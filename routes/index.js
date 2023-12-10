@@ -9,7 +9,6 @@ const usersRouter = require('./users');
 const cardsRouter = require('./cards');
 const { login, createUser } = require('../controllers/users');
 const authMiddleware = require('../middlewares/auth');
-const errorsHandler = require('../middlewares/error-handler');
 
 router.use(cookieParser());
 router.post('/signup', celebrate({
@@ -38,6 +37,5 @@ router.use('/cards', cardsRouter);
 router.use('*', (req, res, next) => next(new SearchError('Страница не найдена')));
 
 router.use(errors());
-router.use(errorsHandler);
 
 module.exports = router;
