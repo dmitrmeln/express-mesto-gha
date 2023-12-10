@@ -31,11 +31,11 @@ const UnauthorizedError = require('../errors/unauthorized-error');
 function auth(req, res, next) {
   const { authorization } = req.headers;
 
-  if (!authorization) {
+  if (!authorization || !authorization.startsWith('Bearer ')) {
     return next(new UnauthorizedError('Запрещено.'));
   }
 
-  const token = authorization;
+  const token = authorization.replace('Bearer ', '');
 
   let payload;
 
